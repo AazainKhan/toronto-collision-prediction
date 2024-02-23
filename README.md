@@ -56,5 +56,5 @@ End with an example of getting some data out of the system or using it for a lit
 - Aazain Ullah Khan - [@aazainkhan](https://github.com/aazainkhan)
 - Mun Younghun - [@younghun46](https://github.com/younghun46)
 - Pham Tuong Nguyen - [@Curry091104](https://github.com/Curry091104)
-- Aazain Ullah Khan - [@aazainkhan](https://github.com/aazainkhan)
-- Aazain Ullah Khan - [@aazainkhan](https://github.com/aazainkhan)
+- Reet Kaur - [@reetkaur1835](https://github.com/reetkaur1835)
+- Yang Dongheun - [@DanielY314](https://github.com/DanielY314)
