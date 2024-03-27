@@ -30,7 +30,7 @@ target = data_cleaned['ACCLASS']
 features = data_preprocessed.drop('ACCLASS', axis=1)
 
 # Split training and test sets
-X_train, X_test, y_train, y_test = train_test_split(features, target, test_size=0.3, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(features, target, test_size=0.3, random_state=73)
 
 # Initialize the Random Forest model
 rf_model = RandomForestClassifier(n_estimators=10, random_state=73)
