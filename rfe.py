@@ -21,6 +21,9 @@ columns_to_remove = [
 # Remove specified columns from the dataset
 data_cleaned = df.drop(columns=columns_to_remove)
 
+threshold = 0.5
+data_cleaned = data_cleaned.dropna(axis='columns', thresh=int(threshold * len(df)))
+
 # Handle missing values
 numerical_cols = data_cleaned.select_dtypes(include=['int64', 'float64']).columns
 categorical_cols = data_cleaned.select_dtypes(include=['object']).columns
@@ -31,8 +34,6 @@ for col in numerical_cols:
 for col in categorical_cols:
     data_cleaned[col].fillna(data_cleaned[col].mode()[0], inplace=True)
     
-threshold = 0.5
-df = df.dropna(axis='columns', thresh=int(threshold * len(df)))
 
 data_cleaned['ACCLASS'] = data_cleaned['ACCLASS'].astype('category').cat.codes
 data_preprocessed = pd.get_dummies(data_cleaned, columns=categorical_cols.drop('ACCLASS'))
