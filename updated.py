@@ -312,7 +312,7 @@ cols = ['HOOD_158', 'HOOD_140']
 df[cols] = df[cols].replace("NSA", np.nan)
 df = df.dropna(subset=['HOOD_158', 'HOOD_140'])
 
-columns_to_drop = ['YEAR', 'TIME','ROAD_CLASS', 'LOCCOORD' ,'ACCLOC', 'TRAFFCTL','CYCLIST', 'HOUR', 'MINUTES', 'IMPACTYPE', 'INVTYPE', 'MANOEUVER', 'DRIVACT', 'DRIVCOND', 'INVAGE', 'TRUCK',  'MONTH', 'DAY', 'DAY_OF_WEEK','PASSENGER', 'ALCOHOL', 'DISABILITY', 'INITDIR', 'LONGITUDE', 'LATITUDE']
+columns_to_drop = ['YEAR', 'TIME','ROAD_CLASS', 'LOCCOORD' ,'ACCLOC','TRSN_CITY_VEH', 'EMERG_VEH' ,'TRAFFCTL','CYCLIST', 'HOUR', 'MINUTES', 'IMPACTYPE', 'INVTYPE', 'MANOEUVER', 'DRIVACT', 'DRIVCOND', 'INVAGE', 'TRUCK',  'MONTH', 'DAY', 'DAY_OF_WEEK','PASSENGER', 'ALCOHOL', 'DISABILITY', 'INITDIR', 'LONGITUDE', 'LATITUDE']
 # Drop 'INJURY' because its coefficient is low
 # We also drop 'LONGITUDE' and 'LATITUDE' because according to the requirement, model will predict the severity of accident in certain neighbourhoods
 df_official = df.drop(columns=columns_to_drop, axis=1)
