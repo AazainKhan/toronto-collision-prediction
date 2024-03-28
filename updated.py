@@ -1,20 +1,27 @@
+# # COMP 247 Project - Group 5
+# Predition of Killed or Seriously Injured (KSI) in Traffic Accidents in Toronto Dataset
+# <hr>
+# Aazain Ullah Khan, Younghun Mun, Tuong Nguyen Pham, Reet Kaur, Dongheun Yang
+# <hr>
+# 
+
 # Import libraries
+from sklearn.metrics import accuracy_score
+from imblearn.over_sampling import SMOTE
+from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.feature_selection import RFE
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.pipeline import Pipeline
+from sklearn.linear_model import LogisticRegression
+from sklearn.feature_selection import SelectKBest, chi2
+from sklearn.preprocessing import StandardScaler, LabelEncoder, OneHotEncoder, OrdinalEncoder
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 import warnings
 warnings.filterwarnings("ignore")
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.preprocessing import StandardScaler, LabelEncoder, OneHotEncoder, OrdinalEncoder
-from sklearn.feature_selection import SelectKBest, chi2
-from sklearn.linear_model import LogisticRegression
-from sklearn.pipeline import Pipeline
-from sklearn.impute import SimpleImputer
-from sklearn.compose import ColumnTransformer
-from sklearn.feature_selection import RFE
-from sklearn.model_selection import StratifiedShuffleSplit
-from imblearn.over_sampling import SMOTENC
-from sklearn.metrics import accuracy_score
 
 # Load the dataset
 df = pd.read_csv('KSI.csv')
@@ -22,45 +29,41 @@ df = pd.read_csv('KSI.csv')
 # Print the shape of the data
 print(df.shape)
 
-print()
-
 # Print the first 5 rows of the data
 print(df.head())
-
-print()
 
 # Print the info of the data
 df.info()
 
-print()
-
 # Print the summary statistics of the data
 print(df.describe())
-
-print()
 
 # Check for missing values
 print(df.isnull().sum())
 
-
 # Plot histogram
-df.hist(bins=50,figsize=(20,20))
+df.hist(bins=50, figsize=(20, 20))
 plt.show()
 
 # Plot correlation matrix of numerical columns
-plt.figure(figsize=(20,20))
-sns.heatmap(df.corr(numeric_only=True),annot=True,cmap='RdYlGn')
+plt.figure(figsize=(20, 20))
+sns.heatmap(df.corr(numeric_only=True), annot=True, cmap='RdYlGn')
 plt.show()
 
-#* From correlation matrix, we can see that 'X' and 'LONGITUDE', 'Y' and 'LATITUDE' are highly correlated. So, we can drop one of them.
+# * From correlation matrix, we can see that 'X' and 'LONGITUDE', 'Y' and 'LATITUDE' are highly correlated. So, we can drop one of them.
 columns_to_drop = ['X', 'Y']
 df = df.drop(columns=columns_to_drop)
 # Get the columns which are boolean
 
-bool_cols = [df.columns[col] for col in range(36,49)]
+bool_cols = [df.columns[col] for col in range(36, 49)]
 
-#Fill missing values with 'No' in boolean columns
-df[bool_cols] = df[bool_cols].fillna('No')
+# Fill missing values with 'No' in boolean columns
+bool_attributes = ['PEDESTRIAN', 'CYCLIST', 'AUTOMOBILE', 'MOTORCYCLE', 'TRUCK', 'TRSN_CITY_VEH',
+                   'EMERG_VEH', 'SPEEDING', 'AG_DRIV', 'REDLIGHT', 'ALCOHOL', 'DISABILITY']
+
+for attribute in bool_attributes:
+    df[attribute] = df[attribute].map(
+        {'Yes': 1, '': 0}).fillna(0).astype(int)
 
 # Drop columns having more than 80% missing values
 missing_percentages = (df.isnull().sum() / len(df)) * 100
@@ -68,7 +71,8 @@ columns_to_drop = missing_percentages[missing_percentages > 80].index
 df = df.drop(columns=columns_to_drop)
 
 # Drop columns which may not be useful for analysis
-columns_to_drop = ['ObjectId', 'INDEX_', 'ACCNUM', 'STREET1', 'STREET2', 'DISTRICT', 'WARDNUM', 'DIVISION', 'NEIGHBOURHOOD_158', 'NEIGHBOURHOOD_140']
+columns_to_drop = ['ObjectId', 'INDEX_', 'ACCNUM', 'STREET1', 'STREET2',
+                   'DISTRICT', 'WARDNUM', 'DIVISION', 'NEIGHBOURHOOD_158', 'NEIGHBOURHOOD_140']
 '''
 Explanation:
 ObjectId, INDEX_, ACCNUM: These columns are unique for each row
@@ -80,67 +84,94 @@ STREET1, STREET2: According to the requirement, model will predict the severity 
 df = df.drop(columns=columns_to_drop)
 
 # Convert 'property' to 'non fatal'
-df['ACCLASS'] = df['ACCLASS'].str.replace("Property Damage Only","Non-Fatal Injury")
+df['ACCLASS'] = df['ACCLASS'].str.replace(
+    "Property Damage Only", "Non-Fatal Injury")
 
 # Categorical columns which have <3% missing values, we can drop them. The number is not remarkable, it won't affect the accuracy, it is just below 3%
-cat_cols =  df.select_dtypes(include='object') # get only categorical columns
+cat_cols = df.select_dtypes(include='object')  # get only categorical columns
 missing_percentages = cat_cols.isnull().sum()/len(df) * 100
 cat_col_val_drop = missing_percentages[missing_percentages <= 3].index
 cat_col_val_drop
 df = df.dropna(subset=cat_col_val_drop)
 
-print()
+
 print(df.isnull().sum())
 
 # Fill null values to naN
+from datetime import datetime
 df = df.fillna(value=np.nan)
 
-# Convert 'TIME' to 'AM_PM', we can use this feature to check the percentage of accidents happened in day and night.
-#! Note: This feature is only used for data exploration, it won't be used for training the model.
-df['AM_PM'] = df['TIME'].apply(lambda x: 'AM' if x < 1200 else 'PM')
+def calculate_hour_and_minutes(time_val):
+    # Ensure the time value is a string with leading zeros if necessary
+    time_str = str(time_val).zfill(4)
+    return int(time_str[:2]), int(time_str[2:])
 
-# Extract 'DATE' to 'YEAR', 'MONTH', 'DAY', 'DAY_OF_WEEK'
-#! Note: These features are only used for data exploration, it won't be used for training the model.
-df['DATE'] = pd.to_datetime(df['DATE']) # Convert 'DATE' to correct datetime format before extracting
-df['MONTH'] = df['DATE'].dt.month_name() # Get months
-df['DAY'] = df['DATE'].dt.day # Get days
-df['DAY_OF_WEEK'] = df['DATE'].dt.day_name() #Get days of week
-df = df.drop(columns=['DATE'], axis=1) # Drop 'DATE' column
 
-# Plot the number of accidents happened in day and night
-plt.figure(figsize=(25,20))
-plt.bar(df['AM_PM'].unique(), df['AM_PM'].value_counts().values)
-plt.title('Number of accidents happened in day and night')
-plt.xlabel('Day/Night')
+df['DATE'] = pd.to_datetime(df['DATE'])
+
+df[['HOUR', 'MINUTES']] = df['TIME'].apply(
+    lambda x: calculate_hour_and_minutes(x)).apply(pd.Series)
+
+df['MONTH'] = df['DATE'].dt.month_name()  # Get months
+df['DAY'] = df['DATE'].dt.day  # Get days
+df['DAY_OF_WEEK'] = df['DATE'].dt.day_name()  # Get days of week
+df = df.drop(columns=['DATE'], axis=1)  # Drop 'DATE' column
+
+# accidents over the years green line plot to show the trend
+plt.figure(figsize=(10, 6))
+df['YEAR'].value_counts().sort_index().plot()
+plt.title('Accidents over the years')
+plt.xlabel('Year')
 plt.ylabel('Number of accidents')
+plt.grid()
 plt.show()
 
-
 # Plot the number of accidents happened in each month
-plt.figure(figsize=(25,20))
-df['MONTH'].value_counts().reindex(['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']).plot(kind='bar', figsize=(10, 6)).plot(kind='bar', figsize=(10, 6))
+plt.figure(figsize=(25, 20))
+df['MONTH'].value_counts().reindex(['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September',
+                                    'October', 'November', 'December']).plot(kind='bar', figsize=(10, 6)).plot(kind='bar', figsize=(10, 6))
 plt.title('Number of Accidents by Month')
 plt.xlabel('Month')
 plt.ylabel('Number of Accidents')
 plt.xticks(rotation=45)
 plt.show()
 
+# accident by time of day
+df['HOUR'].value_counts().sort_index().plot(kind='bar', color='green')
+plt.xlabel('Hour')
+plt.ylabel('Number of accidents')
+plt.title('Accidents per hour')
+plt.show()
 
-# Plot the number of accidents happened in day of week
-plt.figure(figsize=(25,20))
-# Convert day of week from index to string
-df['DAY_OF_WEEK'].value_counts().plot(kind='pie', autopct='%1.1f%%', startangle=140)
-plt.title('Number of accidents happened in day of week')
+plt.figure(figsize=(10, 10))
+df['DAY_OF_WEEK'].value_counts().plot(
+    kind='pie', autopct='%1.1f%%', startangle=140)
+plt.title('Number of accidents happened in day of week', fontsize=30)
+plt.xticks(fontsize=30)
+plt.yticks(fontsize=30)
 plt.ylabel('')
 plt.show()
 
+KSI_pivot_cause = df.pivot_table(index='YEAR',
+                                 values=['SPEEDING', 'AG_DRIV',
+                                         'REDLIGHT', 'ALCOHOL'],
+                                 aggfunc=np.sum,
+                                 margins=True,
+                                 margins_name='Total Under Category')
+fig, ax1 = plt.subplots(figsize=(8, 8))
+KSI_pivot_cause.iloc[11].plot(
+    kind='pie', ax=ax1, autopct='%3.1f%%', fontsize=10)
+ax1.set_ylabel('')
+ax1.set_xlabel('Total accidents by cause of accident', fontsize=12)
 
 # Plot the number of accidents by INVAGE
-plt.figure(figsize=(25,20))
+plt.figure(figsize=(25, 20))
 plt.bar(df['INVAGE'].unique(), df['INVAGE'].value_counts().values)
 plt.title('Number of accidents by INVAGE')
 plt.xlabel('INVAGE')
 plt.ylabel('Number of accidents')
+plt.xticks(fontsize=30, rotation=45)
+plt.yticks(fontsize=30)
 plt.show()
 
 # Scatter plot of LATITUDE vs LONGITUDE
@@ -148,36 +179,56 @@ fatal_accidents = df[df['ACCLASS'] == 'Fatal']
 non_fatal_accidents = df[df['ACCLASS'] != 'Fatal']
 plt.figure(figsize=(10, 6))
 # Plot non-fatal accidents
-plt.scatter(non_fatal_accidents['LONGITUDE'], non_fatal_accidents['LATITUDE'], alpha=0.5, label='Non-Fatal', color='blue')
+plt.scatter(non_fatal_accidents['LONGITUDE'], non_fatal_accidents['LATITUDE'],
+            alpha=0.5, label='Non-Fatal', color='blue')
 # Plot fatal accidents
-plt.scatter(fatal_accidents['LONGITUDE'], fatal_accidents['LATITUDE'], alpha=0.5, label='Fatal', color='red')
+plt.scatter(fatal_accidents['LONGITUDE'], fatal_accidents['LATITUDE'],
+            alpha=0.5, label='Fatal', color='red')
 plt.title('Spatial Distribution of Traffic Accidents')
 plt.xlabel('Longitude')
 plt.ylabel('Latitude')
 plt.legend()
 plt.show()
 
+import folium
+from folium.plugins import HeatMap
+
+KSI_Fatal = df[df['ACCLASS'] == 'Fatal']
+KSI_Fatal = KSI_Fatal[['LATITUDE', 'LONGITUDE', 'ACCLASS']]
+lat_Toronto = df.describe().at['mean', 'LATITUDE']
+lng_Toronto = df.describe().at['mean', 'LONGITUDE']
+Toronto_location = [lat_Toronto, lng_Toronto]
+
+KSI_Fatal_values = KSI_Fatal[['LATITUDE', 'LONGITUDE']].values.astype(float)
+
+Fatal_map = folium.Map(Toronto_location, zoom_start=10.255)
+HeatMap(KSI_Fatal_values, min_opacity=0.2).add_to(Fatal_map)
+Fatal_map
+
+
 # Plot Accident Severity by Impact Type
-df.groupby('IMPACTYPE')['ACCLASS'].value_counts().unstack().plot(kind='bar', stacked=True, figsize=(10, 6))
+df.groupby('IMPACTYPE')['ACCLASS'].value_counts().unstack().plot(
+    kind='bar', stacked=True, figsize=(10, 6))
 plt.title('Accident Severity by Impact Type')
 plt.xlabel('Impact Type')
 plt.ylabel('Number of Accidents')
 plt.xticks(rotation=45)
 plt.show()
 
+
 # Using chi-square test to find correlation between categorical columns and 'ACCLASS' column
 cat_df = df.select_dtypes(include='object')
 ordinal_encoder = OrdinalEncoder()
 cat_df = ordinal_encoder.fit_transform(cat_df)
-cat_df = pd.DataFrame(cat_df, columns=df.select_dtypes(include='object').columns)
-
+cat_df = pd.DataFrame(
+    cat_df, columns=df.select_dtypes(include='object').columns)
 
 X = cat_df.drop(columns=['ACCLASS'], axis=1)
 feature_names = list(X.columns)
 X = SimpleImputer(strategy='most_frequent').fit_transform(X)
 y = cat_df['ACCLASS']
 bestfeatures = SelectKBest(score_func=chi2, k='all')
-fit = bestfeatures.fit(X,y)
+fit = bestfeatures.fit(X, y)
 
 dfscores = pd.DataFrame(fit.scores_)
 dfcolumns = pd.DataFrame(feature_names, columns=['Specs'])
@@ -187,26 +238,26 @@ featureScores.columns = ['Specs', 'Score']
 # Ascending order
 featureScores = featureScores.sort_values(by='Score', ascending=False)
 
-
-# Plot the result
-plt.figure(figsize=(40,30))
+plt.figure(figsize=(40, 30))
 sns.barplot(x='Specs', y='Score', data=featureScores)
-plt.title('Chi-square test result')
-plt.xlabel('Features')
-plt.ylabel('Score')
+plt.title('Chi-square test result', fontsize=80)
+plt.xlabel('Features', fontsize=80)
+plt.ylabel('Score', fontsize=80)
+plt.xticks(fontsize=30, rotation=45)
+plt.yticks(fontsize=30)
 plt.show()
-
-
 
 # Create new variable to use RFE
 # Using model to find important features of the original dataset
 df2 = pd.read_csv('KSI.csv')
-df2['ACCLASS'] = df2['ACCLASS'].str.replace("Property Damage Only", "Non-Fatal Injury")
+df2['ACCLASS'] = df2['ACCLASS'].str.replace(
+    "Property Damage Only", "Non-Fatal Injury")
 df2 = df2.fillna(value=np.nan)
 
 
 df2 = df2.dropna(subset=['ACCLASS'])
-df2 = df2.drop(['ObjectId', 'X', 'Y','NEIGHBOURHOOD_140', 'NEIGHBOURHOOD_158'], axis = 1)
+df2 = df2.drop(['ObjectId', 'X', 'Y', 'NEIGHBOURHOOD_140',
+               'NEIGHBOURHOOD_158'], axis=1)
 
 X = df2.drop(columns=['ACCLASS'], axis=1)
 y = df2['ACCLASS']
@@ -234,34 +285,34 @@ full_pipeline = Pipeline([
 
 
 X_prepared = full_pipeline.fit_transform(X)
-X_prepared = pd.DataFrame(X_prepared, columns=num_features.tolist() + cat_features.tolist())
+X_prepared = pd.DataFrame(
+    X_prepared, columns=num_features.tolist() + cat_features.tolist())
 X_prepared = X_prepared.apply(LabelEncoder().fit_transform)
 # Try using Ordinal Encoder
 
 estimator = LogisticRegression(random_state=5)
-selector = RFE(estimator, step=1, n_features_to_select=10)
+selector = RFE(estimator, step=1, n_features_to_select=15)
 selector = selector.fit(X_prepared, y)
 ranking = selector.ranking_
 ranking = pd.DataFrame(ranking, index=X_prepared.columns, columns=['Rank'])
 ranking = ranking.sort_values(by='Rank', ascending=True)
 
 # Plot the result
-plt.figure(figsize=(40,30))
+plt.figure(figsize=(40, 30))
 sns.barplot(x=ranking['Rank'], y=ranking.index)
-plt.title('RFE result')
+plt.title('RFE result', fontsize=60)
 plt.xlabel('Rank')
 plt.ylabel('Features')
+plt.xticks(fontsize=30)
+plt.yticks(fontsize=30)
 plt.show()
 
-# Check unique values of 'HOOD_158' and 'HOOD_140' columns
-print(df['HOOD_158'].unique())
-
-#* We can see that 'NSA' is present in 'HOOD_158' and 'HOOD_140' columns. This value doesn't make sense, so we can drop it.
+# * We can see that 'NSA' is present in 'HOOD_158' and 'HOOD_140' columns. This value doesn't make sense, so we can drop it.
 cols = ['HOOD_158', 'HOOD_140']
 df[cols] = df[cols].replace("NSA", np.nan)
 df = df.dropna(subset=['HOOD_158', 'HOOD_140'])
 
-columns_to_drop = ['INJURY','YEAR', 'TIME','ROAD_CLASS', 'LOCCOORD' ,'ACCLOC', 'TRAFFCTL', 'LIGHT', 'RDSFCOND', 'IMPACTYPE', 'INVTYPE', 'MANOEUVER', 'DRIVACT', 'DRIVCOND', 'INVAGE', 'TRUCK',  'MONTH', 'DAY','AM_PM', 'DAY_OF_WEEK','PASSENGER', 'ALCOHOL', 'DISABILITY', 'INITDIR', 'LONGITUDE', 'LATITUDE']
+columns_to_drop = ['YEAR', 'TIME','ROAD_CLASS', 'LOCCOORD' ,'ACCLOC', 'TRAFFCTL','CYCLIST', 'HOUR', 'MINUTES', 'IMPACTYPE', 'INVTYPE', 'MANOEUVER', 'DRIVACT', 'DRIVCOND', 'INVAGE', 'TRUCK',  'MONTH', 'DAY', 'DAY_OF_WEEK','PASSENGER', 'ALCOHOL', 'DISABILITY', 'INITDIR', 'LONGITUDE', 'LATITUDE']
 # Drop 'INJURY' because its coefficient is low
 # We also drop 'LONGITUDE' and 'LATITUDE' because according to the requirement, model will predict the severity of accident in certain neighbourhoods
 df_official = df.drop(columns=columns_to_drop, axis=1)
@@ -291,14 +342,6 @@ print(y_train.value_counts())
 print()
 
 
-x_train, y_train = SMOTENC(random_state = 5, categorical_features=[0,1,2,3,4,5,6,7,8, 9, 10]).fit_resample(x_train, y_train)
-
-#! Important note: SMOTE cannot handle more than 15 features
-print("After using SMOTE")
-print(y_train.value_counts())
-print()
-
-
 
 num_pipeline = Pipeline([
     ('imputer', SimpleImputer(strategy='median')),
@@ -322,6 +365,14 @@ full_pipeline = Pipeline([
 
 # Test the pipeline
 x_train_prepared = full_pipeline.fit_transform(x_train)
+
+
+x_train_prepared, y_train = SMOTE(random_state = 5).fit_resample(x_train_prepared, y_train)
+
+#! Important note: If output throws error, SMOTE cannot handle more than 15 features, we need to install threadpoolctl library
+print("After using SMOTE")
+print(y_train.value_counts())
+print()
 
 
 log_reg = LogisticRegression(random_state=5)
