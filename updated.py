@@ -247,17 +247,10 @@ plt.xticks(fontsize=30, rotation=45)
 plt.yticks(fontsize=30)
 plt.show()
 
-# Create new variable to use RFE
+# Create new variable copy df cleaned above to use RFE
 # Using model to find important features of the original dataset
-df2 = pd.read_csv('KSI.csv')
-df2['ACCLASS'] = df2['ACCLASS'].str.replace(
-    "Property Damage Only", "Non-Fatal Injury")
-df2 = df2.fillna(value=np.nan)
+df2 = df.copy()
 
-
-df2 = df2.dropna(subset=['ACCLASS'])
-df2 = df2.drop(['ObjectId', 'X', 'Y', 'NEIGHBOURHOOD_140',
-               'NEIGHBOURHOOD_158'], axis=1)
 
 X = df2.drop(columns=['ACCLASS'], axis=1)
 y = df2['ACCLASS']
@@ -291,7 +284,7 @@ X_prepared = X_prepared.apply(LabelEncoder().fit_transform)
 # Try using Ordinal Encoder
 
 estimator = LogisticRegression(random_state=5)
-selector = RFE(estimator, step=1, n_features_to_select=15)
+selector = RFE(estimator, step=1, n_features_to_select=13)
 selector = selector.fit(X_prepared, y)
 ranking = selector.ranking_
 ranking = pd.DataFrame(ranking, index=X_prepared.columns, columns=['Rank'])
@@ -312,7 +305,7 @@ cols = ['HOOD_158', 'HOOD_140']
 df[cols] = df[cols].replace("NSA", np.nan)
 df = df.dropna(subset=['HOOD_158', 'HOOD_140'])
 
-columns_to_drop = ['YEAR', 'TIME','ROAD_CLASS', 'LOCCOORD' ,'ACCLOC','TRSN_CITY_VEH', 'EMERG_VEH' ,'TRAFFCTL','CYCLIST', 'HOUR', 'MINUTES', 'IMPACTYPE', 'INVTYPE', 'MANOEUVER', 'DRIVACT', 'DRIVCOND', 'INVAGE', 'TRUCK',  'MONTH', 'DAY', 'DAY_OF_WEEK','PASSENGER', 'ALCOHOL', 'DISABILITY', 'INITDIR', 'LONGITUDE', 'LATITUDE']
+columns_to_drop = ['YEAR', 'TIME','ROAD_CLASS', 'LOCCOORD' ,'ACCLOC','TRAFFCTL','CYCLIST', 'HOUR', 'MINUTES', 'IMPACTYPE', 'INVTYPE', 'MANOEUVER', 'DRIVACT', 'VEHTYPE' ,'DRIVCOND', 'INVAGE',  'MONTH', 'DAY', 'DAY_OF_WEEK','PASSENGER', 'DISABILITY', 'INITDIR', 'LONGITUDE', 'LATITUDE', 'RDSFCOND','MOTORCYCLE']
 # Drop 'INJURY' because its coefficient is low
 # We also drop 'LONGITUDE' and 'LATITUDE' because according to the requirement, model will predict the severity of accident in certain neighbourhoods
 df_official = df.drop(columns=columns_to_drop, axis=1)
