@@ -114,7 +114,8 @@ df[['HOUR', 'MINUTES']] = df['TIME'].apply(
 
 df['MONTH'] = df['DATE'].dt.month_name()  # Get months
 df['DAY'] = df['DATE'].dt.day  # Get days
-df['DAY_OF_WEEK'] = df['DATE'].dt.day_name()  # Get days of week
+df['DAY_OF_WEEK'] = df['DATE'].dt.weekday + 1  # Get days of week
+df['DAY_OF_WEEK'] = df['DAY_OF_WEEK'].replace({1: 'Sunday', 2: 'Monday', 3: 'Tuesday', 4: 'Wednesday', 5: 'Thursday', 6: 'Friday', 7: 'Saturday'})
 df = df.drop(columns=['DATE'], axis=1)  # Drop 'DATE' column
 
 # accidents over the years green line plot to show the trend
