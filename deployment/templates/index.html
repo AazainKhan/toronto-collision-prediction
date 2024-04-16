@@ -1,115 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>KSI</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KSI Group Project</title>
+    <script defer src="../static/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
+    <link rel="stylesheet" href="../static/style.css">
 </head>
 <body>
     <h1>KSI</h1>
 
-    <form id='data-form' action="/result" method="post">
-        VISIBILITY
-        <select name="VISIBILITY"> 
-            <option value="Clear" selected>Clear</option>
-            <option value="Rain"> Rain</option>
-            <option value="Snow"> Snow</option>
-            <option value="Strong wind"> Strong wind</option>
-            <option value="Fog, Mist, Smoke, Dust"> Fog, Mist, Smoke, Dust</option>
-            <option value="Drifting Snow"> Drifting Snow</option>
-            <option value="Freezing Rain"> Freezing Rain</option>
-            <option value="Other"> Other</option>
-        </select> <br>
-
-        LIGHT
-        <select name="LIGHT">
-            <option value="Daylight" selected> Daylight</option>
-            <option value="Dark"> Dark</option>
-            <option value="Dusk"> Dusk</option>
-            <option value="Dark, artificial"> Dark, artificial</option>
-            <option value="Dusk, artificial"> Dusk, artificial</option>
-            <option value="Dawn, artificial"> Dawn, artificial</option>
-            <option value="Dawn"> Dawn</option>
-            <option value="Daylight, artificial"> Daylight, artificial</option>
-            <option value="Other"> Other</option>
-        </select> <br>
-
-        INJURY
-        <select name="INJURY">
-            <option value="None" selected> None</option>
-            <option value="Minimal"> Minimal</option>
-            <option value="Minor"> Minor</option>
-            <option value="Major"> Major</option>
-            <option value="Fatal"> Fatal</option>
-        </select> <br>
-
-        DRIVCOND
-        <select name="DRIVCOND">
-            <option value="Ability Impaired, Alcohol">Ability Impaired, Alcohol</option>
-            <option value="Normal"selected>Normal</option>
-            <option value="Ability Impaired, Alcohol Over .08">Ability Impaired, Alcohol Over .08</option>
-            <option value="Inattentive">Inattentive</option>
-            <option value="Had Been Drinking">Had Been Drinking</option>
-            <option value="Medical or Physical Disability">Medical or Physical Disability</option>
-            <option value="Fatigue">Fatigue</option>
-            <option value="Ability Impaired, Drugs">Ability Impaired, Drugs</option>
-            <option value="Other">Other</option>
-        </select> <br>
-
-        PEDESTRIAN
-        <select name="PEDESTRIAN">
-            <option value="0" >No</option>
-            <option value="1"selected>Yes</option>
-        </select> <br>
-
-        TRUCK
-        <select name="TRUCK">
-            <option value="0" >No</option>
-            <option value="1"selected>Yes</option>
-        </select> <br>
-
-        TRSN_CITY_VEH
-        <select name="TRSN_CITY_VEH">
-            <option value="0" >No</option>
-            <option value="1"selected>Yes</option>
-        </select> <br>
-
-        EMERG_VEH
-        <select name="EMERG_VEH">
-            <option value="0" >No</option>
-            <option value="1"selected>Yes</option>
-        </select> <br>
-
-        SPEEDING
-        <select name="SPEEDING">
-            <option value="0" >No</option>
-            <option value="1"selected>Yes</option>
-        </select> <br>
-
-        AG_DRIV
-        <select name="AG_DRIV">
-            <option value="0" >No</option>
-            <option value="1"selected>Yes</option>
-        </select> <br>
-
-        REDLIGHT
-        <select name="REDLIGHT">
-            <option value="0" >No</option>
-            <option value="1"selected>Yes</option>
-        </select> <br>
-
-        ALCOHOL
-        <select name="ALCOHOL">
-            <option value="0" >No</option>
-            <option value="1"selected>Yes</option>
-        </select> <br>
-
-        <label for="HOOD_158">HOOD 158</label>
-        <input name="HOOD_158" type="number" placeholder="HOOD_158" required/><br>
-
-        <label for="HOOD_140">HOOD 140</label>
-        <input name="HOOD_140" type="number" placeholder="HOOD_140" required/><br><br>
-
-        <button id='btn-submit' type="submit">Predict</button>
-        <button type="reset">Reset</button>
+    <form id="data-form" action="/result" method="post" enctype="multipart/form-data">
+        <input type="file" id="csvFileInput" name="csvfile" accept=".csv"> <br><br>
+        <div id="csvData"></div><br>
+        <button type="submit" id="predict_btn">Predict</button>
     </form>
+
 </body>
 </html>

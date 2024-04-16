@@ -21,13 +21,14 @@ from joblib import dump
 df_official = pd.read_csv('cleaned_data_KSI.csv')
 df_official.info()
 
+
 print()
 print(df_official.describe().T)
 x_group3 = df_official.drop(columns=['ACCLASS'], axis=1)
 y_group3 = df_official['ACCLASS']
 
 
-sss = StratifiedShuffleSplit(n_splits=1, test_size=0.3, random_state=5)
+sss = StratifiedShuffleSplit(n_splits=1, test_size=0.3, random_state=42)
 for train_index, test_index in sss.split(x_group3, y_group3):
     x_train, x_test = x_group3.loc[train_index], x_group3.loc[test_index]
     y_train, y_test = y_group3.loc[train_index], y_group3.loc[test_index]
@@ -37,6 +38,8 @@ print("Before using SMOTE")
 print(y_train.value_counts())
 print()
 
+numerical_cols = x_train.select_dtypes(include=np.number).columns
+cat_cols = x_train.select_dtypes(include='object').columns
 
 
 
@@ -52,8 +55,8 @@ cat_pipeline = Pipeline([
 
 
 preprocessor = ColumnTransformer([
-    ('num', num_pipeline, x_train.select_dtypes(include='number').columns),
-    ('cat', cat_pipeline, x_train.select_dtypes(include='object').columns)
+    ('num', num_pipeline, numerical_cols),
+    ('cat', cat_pipeline, cat_cols)
 ])
 
 full_pipeline = Pipeline([
@@ -62,7 +65,7 @@ full_pipeline = Pipeline([
 
 x_train_prepared = full_pipeline.fit_transform(x_train)
 
-x_train_prepared, y_train = SMOTE(random_state=5).fit_resample(x_train_prepared, y_train)
+x_train_prepared, y_train = SMOTE(random_state=42).fit_resample(x_train_prepared, y_train)
 
 # Print class distribution after SMOTE
 print("After using SMOTE")
@@ -70,10 +73,12 @@ print(y_train.value_counts())
 print()
 
 
-log_reg = LogisticRegression(random_state=5)
+log_reg = LogisticRegression(random_state=42)
 log_reg.fit(x_train_prepared, y_train)
 
-crossvalscore = KFold(n_splits=10, random_state=5, shuffle=True)
+
+
+crossvalscore = KFold(n_splits=10, random_state=42, shuffle=True)
 scores = cross_val_score(log_reg, x_train_prepared, y_train, cv=crossvalscore, scoring='accuracy')
 print("Cross validation scores for 10 folds: ", scores)
 print("Mean cross validation score: ", scores.mean())
@@ -98,13 +103,13 @@ print(report)
 
 
 
-
-
 cfs_matrix = confusion_matrix(y_test, y_pred, labels=log_reg.classes_)
 display = ConfusionMatrixDisplay(cfs_matrix,display_labels=log_reg.classes_)
 display.plot()
 plt.title("Confusion Matrix before tuning model")
 plt.show()
+
+
 
 
 param_grid = {
@@ -135,6 +140,6 @@ display.plot()
 plt.title("Confusion Matrix after tuning model")
 plt.show()
 
+dump(log_reg_best, './deployment/log_reg_model.pkl')
+dump(full_pipeline, './deployment/pipeline.pkl')
 
-dump(log_reg_best, 'log_reg_model.pkl')
-dump(full_pipeline, 'pipeline.pkl')

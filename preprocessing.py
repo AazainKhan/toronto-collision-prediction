@@ -98,7 +98,6 @@ df = df.dropna(subset=cat_col_val_drop)
 print(df.isnull().sum())
 
 # Fill null values to naN
-from datetime import datetime
 df = df.fillna(value=np.nan)
 
 def calculate_hour_and_minutes(time_val):
@@ -305,9 +304,8 @@ cols = ['HOOD_158', 'HOOD_140']
 df[cols] = df[cols].replace("NSA", np.nan)
 df = df.dropna(subset=['HOOD_158', 'HOOD_140'])
 
-columns_to_drop = ['YEAR', 'TIME','ROAD_CLASS', 'LOCCOORD' ,'ACCLOC','TRAFFCTL','CYCLIST', 'HOUR','AUTOMOBILE', 'MINUTES', 'IMPACTYPE', 'INVTYPE', 'MANOEUVER', 'DRIVACT', 'VEHTYPE' , 'INVAGE',  'MONTH', 'DAY', 'DAY_OF_WEEK','PASSENGER', 'DISABILITY', 'INITDIR', 'LONGITUDE', 'LATITUDE', 'RDSFCOND','MOTORCYCLE']
-# Drop 'INJURY' because its coefficient is low
-# We also drop 'LONGITUDE' and 'LATITUDE' because according to the requirement, model will predict the severity of accident in certain neighbourhoods
+columns_to_drop = ['YEAR', 'TIME','ROAD_CLASS','LOCCOORD' ,'TRAFFCTL','HOUR', 'MINUTES', 'VEHTYPE' ,'MANOEUVER', 'DRIVACT','MONTH', 'DAY', 'DAY_OF_WEEK', 'INITDIR']
+
 df_official = df.drop(columns=columns_to_drop, axis=1)
 df_official[cols] = df_official[cols].astype(np.number)
 
@@ -348,7 +346,7 @@ cat_pipeline = Pipeline([
 
 
 preprocessor = ColumnTransformer([
-    ('num', num_pipeline, x_train.select_dtypes(include='number').columns),
+    ('num', num_pipeline, x_train.select_dtypes(include=np.number).columns),
     ('cat', cat_pipeline, x_train.select_dtypes(include='object').columns)
 ])
 
