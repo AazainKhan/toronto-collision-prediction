@@ -34,10 +34,6 @@ for train_index, test_index in sss.split(x_group3, y_group3):
     y_train, y_test = y_group3.loc[train_index], y_group3.loc[test_index]
 
 
-print("Before using SMOTE")
-print(y_train.value_counts())
-print()
-
 numerical_cols = x_train.select_dtypes(include=np.number).columns
 cat_cols = x_train.select_dtypes(include='object').columns
 
@@ -66,56 +62,14 @@ full_pipeline = Pipeline([
 x_train_prepared = full_pipeline.fit_transform(x_train)
 
 x_train_prepared, y_train = SMOTE(random_state=42).fit_resample(x_train_prepared, y_train)
-
-# Print class distribution after SMOTE
-print("After using SMOTE")
-print(y_train.value_counts())
-print()
-
+x_test_transformed = full_pipeline.transform(x_test)
 
 log_reg = LogisticRegression(random_state=42)
-log_reg.fit(x_train_prepared, y_train)
-
-
-
-crossvalscore = KFold(n_splits=10, random_state=42, shuffle=True)
-scores = cross_val_score(log_reg, x_train_prepared, y_train, cv=crossvalscore, scoring='accuracy')
-print("Cross validation scores for 10 folds: ", scores)
-print("Mean cross validation score: ", scores.mean())
-
-y_pred = log_reg.predict(x_train_prepared)
-print("Accuracy score on training data: ", accuracy_score(y_train, y_pred))
-
-x_test_transformed = full_pipeline.transform(x_test)
-y_pred = log_reg.predict(x_test_transformed)
-print("Accuracy score on testing data: ", accuracy_score(y_test, y_pred))
-
-y_probas = log_reg.predict_proba(x_test_transformed)
-print(y_probas)
-skplt.metrics.plot_roc_curve(y_test, y_probas)
-plt.title('ROC Curves of Logistic Regression model')
-plt.show()
-
-
-report = classification_report(y_test, y_pred)
-print("Classification report of Logistic Regression before tuning model")
-print(report)
-
-
-
-cfs_matrix = confusion_matrix(y_test, y_pred, labels=log_reg.classes_)
-display = ConfusionMatrixDisplay(cfs_matrix,display_labels=log_reg.classes_)
-display.plot()
-plt.title("Confusion Matrix before tuning model")
-plt.show()
-
-
-
-
 param_grid = {
     'C': np.logspace(-4, 4, 50),
     'penalty': ['l1', 'l2'],
-    'solver': ['liblinear', 'saga']
+    'solver': ['liblinear', 'saga'],
+    'max_iter': [100, 200, 300, 400, 500]
 }
 
 grid = RandomizedSearchCV(log_reg, param_grid, cv=5, n_jobs=-1, scoring='accuracy', n_iter=100, random_state=5)
@@ -123,15 +77,19 @@ grid.fit(x_train_prepared, y_train)
 
 print("Best parameters: ", grid.best_params_)
 print("Best cross-validation score: ", grid.best_score_)
-print("Best estimator: ", grid.best_estimator_)
 
 log_reg_best = grid.best_estimator_
-log_reg_best.fit(x_train_prepared, y_train)
 y_pred = log_reg_best.predict(x_test_transformed)
 print("Accuracy score on testing data with best parameters: ", accuracy_score(y_test, y_pred))
 
+y_probas = log_reg_best.predict_proba(x_test_transformed)
+print(y_probas)
+skplt.metrics.plot_roc_curve(y_test, y_probas)
+plt.title('ROC Curves of Logistic Regression model')
+plt.show()
+
 report = classification_report(y_test, y_pred)
-print("Classification report of Logistic Regression after tuning model")
+print("Classification report of Logistic Regression")
 print(report)
 
 cfs_matrix = confusion_matrix(y_test, y_pred, labels=log_reg.classes_)
