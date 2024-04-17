@@ -18,7 +18,7 @@ import scikitplot as skplt
 from joblib import dump
 
 
-df_official = pd.read_csv('cleaned_data_KSI.csv')
+df_official = pd.read_csv(r'C:\Users\danie\Desktop\newDanielPart\toronto-collision-risk-analysis\cleaned_data_KSI.csv')
 df_official.info()
 print()
 print(df_official.describe().T)
@@ -98,8 +98,8 @@ report = classification_report(y_test, y_pred)
 print("Classification report of Neural Network Model:")
 print(report)
 
-cfs_matrix = confusion_matrix(y_test, y_pred, labels=neural_net.classes_)
-display = ConfusionMatrixDisplay(cfs_matrix,display_labels=neural_net.classes_)
+cfs_matrix = confusion_matrix(y_test, y_pred, labels=neural_best_model.classes_)
+display = ConfusionMatrixDisplay(cfs_matrix,display_labels=neural_best_model.classes_)
 display.plot()
 plt.title("Confusion Matrix of Neural Network Model")
 plt.show()
