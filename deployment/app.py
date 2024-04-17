@@ -1,4 +1,6 @@
-from flask import *
+from flask import Flask, render_template, request
+import warnings
+warnings.filterwarnings("ignore")
 import numpy as np
 import pandas as pd
 from sklearn.metrics import accuracy_score

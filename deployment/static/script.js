@@ -33,4 +33,6 @@ function displayCSV(data) {
     const csvDataDiv = document.getElementById('csvData');
     csvDataDiv.innerHTML = '';
     csvDataDiv.appendChild(table);
+
+    document.getElementById("predict_btn").style.display = "block";
 }
