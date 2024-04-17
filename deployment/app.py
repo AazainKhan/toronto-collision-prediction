@@ -8,8 +8,8 @@ from joblib import load
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
-log_model = load(r"D:\Centennial College Materials\FOURTH SEMESTER\COMP 247 - SUPERVISED LEARNING\GROUP PROJECT\toronto-collision-risk-analysis\deployment\log_reg_model.pkl")
-pipeline = load(r"D:\Centennial College Materials\FOURTH SEMESTER\COMP 247 - SUPERVISED LEARNING\GROUP PROJECT\toronto-collision-risk-analysis\deployment\pipeline.pkl")
+log_model = load("log_reg_model.pkl")
+pipeline = load("pipeline.pkl")
 cols = ['LATITUDE','LONGITUDE','ACCLOC','VISIBILITY', 'LIGHT','RDSFCOND' ,'IMPACTYPE','INVTYPE','INVAGE','INJURY', 'DRIVCOND', 'PEDESTRIAN', 'CYCLIST','AUTOMOBILE','MOTORCYCLE','TRUCK', 'TRSN_CITY_VEH', 'EMERG_VEH','PASSENGER' ,'SPEEDING', 'AG_DRIV', 'REDLIGHT', 'ALCOHOL','DISABILITY' , 'HOOD_158', 'HOOD_140']
 
 

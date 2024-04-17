@@ -37,9 +37,6 @@ What things you need to install the software and how to install them.
 
 A step by step series of examples that tell you how to get a development env running.
 
-## Usage <a name = "usage"></a>
-
-
 Activate the virtual environment:
 
 ```
@@ -50,6 +47,18 @@ Install required packages:
 
 ```
 pip install -r requirements.txt
+```
+
+Change directory to deployment folder:
+
+```
+cd deployment
+```
+
+Run the Flask app:
+
+```
+python3 app.py
 ```
 
 
