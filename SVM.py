@@ -424,3 +424,5 @@ plt.title('ROC Curve for SVM')
 plt.legend(loc="lower right")
 plt.show()
 
+from joblib import dump
+dump(svm_model, 'SVM_model.pkl')
