@@ -1,0 +1,14 @@
+tr:first-child {
+    background: lightgray;
+    text-align: center;
+    font-weight: bold;
+}
+table, tr, td {
+    border-collapse: collapse;
+    border: 1px solid;
+}
+#csvData{
+    width: 100%;
+    max-height: 300px; 
+    overflow-y: auto;
+}

@@ -7,7 +7,7 @@
 
 # Import libraries
 from sklearn.metrics import accuracy_score
-from imblearn.over_sampling import SMOTENC
+from imblearn.over_sampling import SMOTE
 from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.feature_selection import RFE
 from sklearn.compose import ColumnTransformer
@@ -24,7 +24,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 # Load the dataset
-df = pd.read_csv('KSI.csv')
+df = pd.read_csv('../KSI.csv')
 
 # Print the shape of the data
 print(df.shape)
@@ -98,7 +98,6 @@ df = df.dropna(subset=cat_col_val_drop)
 print(df.isnull().sum())
 
 # Fill null values to naN
-from datetime import datetime
 df = df.fillna(value=np.nan)
 
 def calculate_hour_and_minutes(time_val):
@@ -114,8 +113,7 @@ df[['HOUR', 'MINUTES']] = df['TIME'].apply(
 
 df['MONTH'] = df['DATE'].dt.month_name()  # Get months
 df['DAY'] = df['DATE'].dt.day  # Get days
-df['DAY_OF_WEEK'] = df['DATE'].dt.weekday + 1  # Get days of week
-df['DAY_OF_WEEK'] = df['DAY_OF_WEEK'].replace({1: 'Sunday', 2: 'Monday', 3: 'Tuesday', 4: 'Wednesday', 5: 'Thursday', 6: 'Friday', 7: 'Saturday'})
+df['DAY_OF_WEEK'] = df['DATE'].dt.day_name()  # Get days of week
 df = df.drop(columns=['DATE'], axis=1)  # Drop 'DATE' column
 
 # accidents over the years green line plot to show the trend
@@ -248,17 +246,10 @@ plt.xticks(fontsize=30, rotation=45)
 plt.yticks(fontsize=30)
 plt.show()
 
-# Create new variable to use RFE
+# Create new variable copy df cleaned above to use RFE
 # Using model to find important features of the original dataset
-df2 = pd.read_csv('KSI.csv')
-df2['ACCLASS'] = df2['ACCLASS'].str.replace(
-    "Property Damage Only", "Non-Fatal Injury")
-df2 = df2.fillna(value=np.nan)
+df2 = df.copy()
 
-
-df2 = df2.dropna(subset=['ACCLASS'])
-df2 = df2.drop(['ObjectId', 'X', 'Y', 'NEIGHBOURHOOD_140',
-               'NEIGHBOURHOOD_158'], axis=1)
 
 X = df2.drop(columns=['ACCLASS'], axis=1)
 y = df2['ACCLASS']
@@ -292,7 +283,7 @@ X_prepared = X_prepared.apply(LabelEncoder().fit_transform)
 # Try using Ordinal Encoder
 
 estimator = LogisticRegression(random_state=5)
-selector = RFE(estimator, step=1, n_features_to_select=10)
+selector = RFE(estimator, step=1, n_features_to_select=13)
 selector = selector.fit(X_prepared, y)
 ranking = selector.ranking_
 ranking = pd.DataFrame(ranking, index=X_prepared.columns, columns=['Rank'])
@@ -313,24 +304,23 @@ cols = ['HOOD_158', 'HOOD_140']
 df[cols] = df[cols].replace("NSA", np.nan)
 df = df.dropna(subset=['HOOD_158', 'HOOD_140'])
 
-columns_to_drop = ['INJURY', 'YEAR', 'TIME', 'ROAD_CLASS', 'LOCCOORD', 'ACCLOC', 'TRAFFCTL', 'LIGHT', 'RDSFCOND', 'IMPACTYPE', 'INVTYPE', 'MANOEUVER',
-                   'DRIVACT', 'DRIVCOND', 'INVAGE', 'TRUCK',  'MONTH', 'DAY', 'HOUR', 'MINUTES', 'DAY_OF_WEEK', 'PASSENGER', 'ALCOHOL', 'DISABILITY', 'INITDIR', 'LONGITUDE', 'LATITUDE']
-# Drop 'INJURY' because its coefficient is low
-# We also drop 'LONGITUDE' and 'LATITUDE' because according to the requirement, model will predict the severity of accident in certain neighbourhoods
+columns_to_drop = ['YEAR', 'TIME','ROAD_CLASS','LOCCOORD' ,'TRAFFCTL','HOUR', 'MINUTES', 'VEHTYPE' ,'MANOEUVER', 'DRIVACT','MONTH', 'DAY', 'DAY_OF_WEEK', 'INITDIR']
+
 df_official = df.drop(columns=columns_to_drop, axis=1)
 df_official[cols] = df_official[cols].astype(np.number)
 
 # Save cleaned data with SMOTE
-df_official.to_csv('cleaned_data_KSI.csv', index=False)
+df_official.to_csv('../cleaned_data_KSI.csv', index=False)
 
 # Import cleaned file
-df_official = pd.read_csv('cleaned_data_KSI.csv')
+df_official = pd.read_csv('../cleaned_data_KSI.csv')
 
 # Print info of the data
 df_official.info()
 
 x_group3 = df_official.drop(columns=['ACCLASS'], axis=1)
 y_group3 = df_official['ACCLASS']
+
 
 sss = StratifiedShuffleSplit(n_splits=1, test_size=0.3, random_state=5)
 for train_index, test_index in sss.split(x_group3, y_group3):
@@ -341,12 +331,8 @@ for train_index, test_index in sss.split(x_group3, y_group3):
 print("Before using SMOTE")
 print(y_train.value_counts())
 
-x_train, y_train = SMOTENC(random_state=5, categorical_features=[
-                           0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).fit_resample(x_train, y_train)
 
-#! Important note: SMOTE cannot handle more than 15 features
-print("After using SMOTE")
-print(y_train.value_counts())
+
 
 num_pipeline = Pipeline([
     ('imputer', SimpleImputer(strategy='median')),
@@ -360,7 +346,7 @@ cat_pipeline = Pipeline([
 
 
 preprocessor = ColumnTransformer([
-    ('num', num_pipeline, x_train.select_dtypes(include='number').columns),
+    ('num', num_pipeline, x_train.select_dtypes(include=np.number).columns),
     ('cat', cat_pipeline, x_train.select_dtypes(include='object').columns)
 ])
 
@@ -372,14 +358,8 @@ full_pipeline = Pipeline([
 x_train_prepared = full_pipeline.fit_transform(x_train)
 
 
-log_reg = LogisticRegression(random_state=5)
-log_reg.fit(x_train_prepared, y_train)
+x_train_prepared, y_train = SMOTE(random_state = 5).fit_resample(x_train_prepared, y_train)
 
-y_pred = log_reg.predict(x_train_prepared)
-print("Accuracy score on training data: ", accuracy_score(y_train, y_pred))
-
-x_test_transformed = full_pipeline.transform(x_test)
-y_pred = log_reg.predict(x_test_transformed)
-print("Accuracy score on testing data: ", accuracy_score(y_test, y_pred))
-
-
+#! Important note: If output throws error, SMOTE cannot handle more than 15 features, we need to install threadpoolctl library
+print("After using SMOTE")
+print(y_train.value_counts())

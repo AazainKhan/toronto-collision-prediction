@@ -13,7 +13,7 @@ COMP 247 - Term Project - Winter 2024
 
 ## About <a name = "about"></a>
 
-Write about 1-2 paragraphs describing the purpose of your project.
+This project aims to develop a predictive machine learning model (classifier) and deploy it as a web API for inference. The model predicts the likelihood of fatal collisions involving loss of life based on certain features. The purpose is to assist both the police department and the general public in assessing road safety conditions and planning security measures accordingly.
 
 ## Getting Started <a name = "getting_started"></a>
 
@@ -24,7 +24,13 @@ These instructions will get you a copy of the project up and running on your loc
 What things you need to install the software and how to install them.
 
 ```
-Give examples
+- Python
+- Flask
+- Scikit-learn
+- Pandas
+- NumPy
+- Matplotlib
+- Seaborn
 ```
 
 ### Deployment
@@ -34,19 +40,18 @@ A step by step series of examples that tell you how to get a development env run
 ## Usage <a name = "usage"></a>
 
 
-Step 1:
+Activate the virtual environment:
 
 ```
-Instruction
+python3 -m venv .venv source .venv/bin/activate
 ```
 
-Step 2:
+Install required packages:
 
 ```
-Instruction
+pip install -r requirements.txt
 ```
 
-End with an example of getting some data out of the system or using it for a little demo.
 
 ## Built Using <a name = "built_using"></a>
 
