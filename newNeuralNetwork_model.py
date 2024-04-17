@@ -70,6 +70,7 @@ param_grid = {
     'activation': ['relu', 'logistic', 'tanh'],
     'solver': ['adam', 'sgd'],
     'alpha': [0.0001, 0.001, 0.01],
+    'max_iter': [200, 300, 400, 500],
     'learning_rate': ['constant','adaptive']
 }
 
