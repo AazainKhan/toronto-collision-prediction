@@ -3,19 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KSI Group Project</title>
-    <script defer src="../static/script.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
+    <title>Toronto Collision Fatality Prediction</title>
     <link rel="stylesheet" href="../static/style.css">
 </head>
 <body>
-    <h1>KSI</h1>
+    <h1>Toronto Collision Fatality Prediction</h1>
+    <form id="prediction-form">
+        <label for="accLoc">ACCLOC:</label>
+        <select id="accLoc" name="accLoc">
+            <option value="At Intersection">At Intersection</option>
+            <option value="Intersection Related">Intersection Related</option>
+            <option value="Non Intersection">Non Intersection</option>
+            <option value="At/Near Private Drive">At/Near Private Drive</option>
+            <option value="Underpass or Tunnel">Underpass or Tunnel</option>
+            <option value="Private Driveway">Private Driveway</option>
+            <option value="Overpass or Bridge">Overpass or Bridge</option>
+            <option value="Trail">Trail</option>
+            <option value="Laneway">Laneway</option>
+        </select><br><br>
 
-    <form id="data-form" action="/result" method="post" enctype="multipart/form-data">
-        <input type="file" id="csvFileInput" name="csvfile" accept=".csv"> <br><br>
-        <div id="csvData"></div><br>
-        <button type="submit" id="predict_btn" style="display:None">Predict</button>
+        <label for="visibility">VISIBILITY:</label>
+        <select id="visibility" name="visibility">
+            <option value="Clear">Clear</option>
+            <option value="Rain">Rain</option>
+            <option value="Other">Other</option>
+            <option value="Snow">Snow</option>
+            <option value="Strong wind">Strong wind</option>
+            <option value="Fog, Mist, Smoke, Dust">Fog, Mist, Smoke, Dust</option>
+            <option value="Drifting Snow">Drifting Snow</option>
+            <option value="Freezing Rain">Freezing Rain</option>
+        </select><br><br>
+
+        <label for="light">LIGHT:</label>
+        <select id="light" name="light">
+            <option value="Daylight">Daylight</option>
+            <option value="Dark">Dark</option>
+            <option value="Dusk">Dusk</option>
+            <option value="Dark, artificial">Dark, artificial</option>
+            <option value="Dusk, artificial">Dusk, artificial</option>
+            <option value="Dawn, artificial">Dawn, artificial</option>
+            <option value="Dawn">Dawn</option>
+            <option value="Daylight, artificial">Daylight, artificial</option>
+            <option value="Other">Other</option>
+        </select><br><br>
+
+        <label for="rdsfcond">RDSFCOND:</label>
+        <select id="rdsfcond" name="rdsfcond">
+            <option value="Dry">Dry</option>
+            <option value="Wet">Wet</option>
+            <option value="Other">Other</option>
+            <option value="Slush">Slush</option>
+            <option value="Loose Snow">Loose Snow</option>
+            <option value="Ice">Ice</option>
+            <option value="Packed Snow">Packed Snow</option>
+            <option value="Spilled liquid">Spilled liquid</option>
+            <option value="Loose Sand or Gravel">Loose Sand or Gravel</option>
+        </select><br><br>
+
+        <label for="impactype">IMPACTYPE:</label>
+        <select id="impactype" name="impactype">
+            <option value="Pedestrian Collisions">Pedestrian Collisions</option>
+            <option value="Turning Movement">Turning Movement</option>
+            <option value="Approaching">Approaching</option>
+            <option value="Other">Other</option>
+            <option value="Cyclist Collisions">Cyclist Collisions</option>
+            <option value="Angle">Angle</option>
+            <option value="SMV Other">SMV Other</option>
+            <option value="Rear End">Rear End</option>
+            <option value="Sideswipe">Sideswipe</option>
+            <option value="SMV Unattended Vehicle">SMV Unattended Vehicle</option>
+        </select><br><br>
+
+        <label for="invtype">INVTYPE:</label>
+        <select id="invtype" name="invtype">
+            <option value="Driver">Driver</option>
+            <option value="Pedestrian">Pedestrian</option>
+            <option value="Motorcycle Driver">Motorcycle Driver</option>
+            <option value="Passenger">Passenger</option>
+            <option value="Vehicle Owner">Vehicle Owner</option>
+            <option value="Cyclist">Cyclist</option>
+            <option value="Truck Driver">Truck Driver</option>
+            <option value="Other Property Owner">Other Property Owner</option>
+            <option value="Motorcycle Passenger">Motorcycle Passenger</option>
+            <option value="Other">Other</option>
+            <option value="Driver - Not Hit">Driver - Not Hit</option>
+            <option value="In-Line Skater">In-Line Skater</option>
+            <option value="Moped Driver">Moped Driver</option>
+            <option value="Wheelchair">Wheelchair</option>
+            <option value="Pedestrian - Not Hit">Pedestrian - Not Hit</option>
+            <option value="Trailer Owner">Trailer Owner</option>
+            <option value="Witness">Witness</option>
+            <option value="Cyclist Passenger">Cyclist Passenger</option>
+            <option value="Moped Passenger">Moped Passenger</option>
+        </select><br><br>
+
+        <label for="invage">INVAGE:</label>
+        <select id="invage" name="invage">
+            <option value="unknown">Unknown</option>
+            <option value="65 to 69">65 to 69</option>
+            <option value="45 to 49">45 to 49</option>
+            <option value="50 to 54">50 to 54</option>
+            <option value="25 to 29">25 to 29</option>
+            <option value="15 to 19">15 to 19</option>
+            <option value="55 to 59">55 to 59</option>
+            <option value="30 to 34">30 to 34</option>
+            <option value="40 to 44">40 to 44</option>
+            <option value="20 to 24">20 to 24</option>
+            <option value="35 to 39">35 to 39</option>
+            <option value="70 to 74">70 to 74</option>
+            <option value="60 to 64">60 to 64</option>
+            <option value="10 to 14">10 to 14</option>
+            <option value="75 to 79">75 to 79</option>
+            <option value="5 to 9">5 to 9</option>
+            <option value="85 to 89">85 to 89</option>
+            <option value="0 to 4">0 to 4</option>
+            <option value="90 to 94">90 to 94</option>
+            <option value="80 to 84">80 to 84</option>
+            <option value="Over 95">Over 95</option>
+        </select><br><br>
+
+        <label for="injury">INJURY:</label>
+        <select id="injury" name="injury">
+            <option value="None">None</option>
+            <option value="Fatal">Fatal</option>
+            <option value="Major">Major</option>
+            <option value="Minor">Minor</option>
+            <option value="Minimal">Minimal</option>
+        </select><br><br>
+
+        <label for="drivcond">DRIVCOND:</label>
+        <select id="drivcond" name="drivcond">
+            <option value="Unknown">Unknown</option>
+            <option value="Ability Impaired, Alcohol">Ability Impaired, Alcohol</option>
+            <option value="Normal">Normal</option>
+            <option value="Ability Impaired, Alcohol Over .08">Ability Impaired, Alcohol Over .08</option>
+            <option value="Inattentive">Inattentive</option>
+            <option value="Had Been Drinking">Had Been Drinking</option>
+            <option value="Medical or Physical Disability">Medical or Physical Disability</option>
+            <option value="Fatigue">Fatigue</option>
+            <option value="Other">Other</option>
+            <option value="Ability Impaired, Drugs">Ability Impaired, Drugs</option>
+        </select><br><br>
+
+        <label for="pedestrian">PEDESTRIAN:</label>
+        <input type="checkbox" id="pedestrian" name="pedestrian"><br><br>
+
+        <label for="cyclist">CYCLIST:</label>
+        <input type="checkbox" id="cyclist" name="cyclist"><br><br>
+
+        <label for="automobile">AUTOMOBILE:</label>
+        <input type="checkbox" id="automobile" name="automobile"><br><br>
+
+        <label for="motorcycle">MOTORCYCLE:</label>
+        <input type="checkbox" id="motorcycle" name="motorcycle"><br><br>
+
+        <label for="truck">TRUCK:</label>
+        <input type="checkbox" id="truck" name="truck"><br><br>
+
+        <label for="trsn_city_veh">TRSN_CITY_VEH:</label>
+        <input type="checkbox" id="trsn_city_veh" name="trsn_city_veh"><br><br>
+
+        <label for="emerg_veh">EMERG_VEH:</label>
+        <input type="checkbox" id="emerg_veh" name="emerg_veh"><br><br>
+
+        <label for="passenger">PASSENGER:</label>
+        <input type="checkbox" id="passenger" name="passenger"><br><br>
+
+        <label for="speeding">SPEEDING:</label>
+        <input type="checkbox" id="speeding" name="speeding"><br><br>
+
+        <label for="ag_driv">AG_DRIV:</label>
+        <input type="checkbox" id="ag_driv" name="ag_driv"><br><br>
+
+        <label for="redlight">REDLIGHT:</label>
+        <input type="checkbox" id="redlight" name="redlight"><br><br>
+
+        <label for="alcohol">ALCOHOL:</label>
+        <input type="checkbox" id="alcohol" name="alcohol"><br><br>
+
+        <label for="disability">DISABILITY:</label>
+        <input type="checkbox" id="disability" name="disability"><br><br>
+
+        <input type="submit" value="Submit">
+
     </form>
+    <div id="result"></div>
+    <script src="../static/script.js"></script>
 
 </body>
 </html>

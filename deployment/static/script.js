@@ -1,38 +1,26 @@
-document.getElementById('csvFileInput').addEventListener('change', handleFileSelect);
+document.querySelector('form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
 
-function handleFileSelect(event) {
-    const file = event.target.files[0];
-    const reader = new FileReader();
-
-    reader.onload = function(e) {
-        const csv = e.target.result;
-        Papa.parse(csv, {
-            complete: function(results) {
-                displayCSV(results.data);
-            }
-        });
-    };
-
-    reader.readAsText(file);
-}
-
-function displayCSV(data) {
-    const table = document.createElement('table');
-
-    data.forEach(row => {
-        const tr = document.createElement('tr');
-        row.forEach(cell => {
-            const td = document.createElement('td');
-            td.textContent = cell;
-            tr.appendChild(td);
-        });
-        table.appendChild(tr);
+    // Add default values for unchecked checkboxes
+    const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(function(checkbox) {
+        if (!checkbox.checked) {
+            formData.append(checkbox.name, '0');
+        }
     });
 
-    // Clear previous data and append new table
-    const csvDataDiv = document.getElementById('csvData');
-    csvDataDiv.innerHTML = '';
-    csvDataDiv.appendChild(table);
-
-    document.getElementById("predict_btn").style.display = "block";
-}
+    fetch('/predict', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Handle prediction result
+        console.log(data);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+});
