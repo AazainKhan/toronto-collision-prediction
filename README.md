@@ -37,7 +37,7 @@ What things you need to install the software and how to install them.
 
 A step by step series of examples that tell you how to get a development env running.
 
-Activate the virtual environment:
+In the root of the project dir activate the virtual environment:
 
 ```
 python3 -m venv .venv source .venv/bin/activate
@@ -65,6 +65,8 @@ python3 app.py
 ## Built Using <a name = "built_using"></a>
 
 - Python
+- Flask
+- Bootstrap
 
 
 ## Authors <a name = "authors"></a>
