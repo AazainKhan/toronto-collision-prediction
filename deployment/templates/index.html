@@ -32,8 +32,8 @@
       </nav>
    
     <form id="prediction-form" method="POST">
-        <div class="mb-3">
-            <label for="model" class="form-label">Model:</label>
+        <div class="mb-4">
+            <label for="model" class="form-label"><strong>Prediction Model:</strong></label>
             <select id="model" name="MODEL" class="form-select">
                 <option value="logistic_regression">Logistic Regression</option>
                 <option value="svm">SVM</option>
@@ -42,7 +42,8 @@
                 <option value="random_forest">Random Forest</option>
             </select>
         </div> 
-        <div class="mb-3">
+        <hr>
+        <div class="mb-3 mt-4">
             <label for="accLoc" class="form-label">ACCLOC:</label>
             <select id="accLoc" name="ACCLOC" class="form-select">
                 <option value="At Intersection">At Intersection</option>
@@ -187,73 +188,88 @@
                 <option value="Ability Impaired, Drugs">Ability Impaired, Drugs</option>
             </select>
         </div>
-        <div class="mb-3 form-check">
-            <input type="checkbox" id="pedestrian" name="PEDESTRIAN" class="form-check-input">
-            <label for="pedestrian" class="form-check-label">PEDESTRIAN</label>
-        </div>
-        <div class="mb-3 form-check">
-            <input type="checkbox" id="cyclist" name="CYCLIST" class="form-check-input">
-            <label for="cyclist" class="form-check-label">CYCLIST</label>
-        </div>
-        <div class="mb-3 form-check">
-            <input type="checkbox" id="automobile" name="AUTOMOBILE" class="form-check-input">
-            <label for="automobile" class="form-check-label">AUTOMOBILE</label>
-        </div>
-        <div class="mb-3 form-check">
-            <input type="checkbox" id="motorcycle" name="MOTORCYCLE" class="form-check-input">
-            <label for="motorcycle" class="form-check-label">MOTORCYCLE</label>
-        </div>
-        <div class="mb-3 form-check">
-            <input type="checkbox" id="truck" name="TRUCK" class="form-check-input">
-            <label for="truck" class="form-check-label">TRUCK</label>
-        </div>
-        <div class="mb-3 form-check">
-            <input type="checkbox" id="trsn_city_veh" name="TRSN_CITY_VEH" class="form-check-input">
-            <label for="trsn_city_veh" class="form-check-label">TRSN_CITY_VEH</label>
-        </div>
-        <div class="mb-3 form-check">
-            <input type="checkbox" id="emerg_veh" name="EMERG_VEH" class="form-check-input">
-            <label for="emerg_veh" class="form-check-label">EMERG_VEH</label>
-        </div>
-        <div class="mb-3 form-check">
-            <input type="checkbox" id="passenger" name="PASSENGER" class="form-check-input">
-            <label for="passenger" class="form-check-label">PASSENGER</label>
-        </div>
-        <div class="mb-3 form-check">
-            <input type="checkbox" id="speeding" name="SPEEDING" class="form-check-input">
-            <label for="speeding" class="form-check-label">SPEEDING</label>
-        </div>
-        <div class="mb-3 form-check">
-            <input type="checkbox" id="ag_driv" name="AG_DRIV" class="form-check-input">
-            <label for="ag_driv" class="form-check-label">AG_DRIV</label>
-        </div>
-        <div class="mb-3 form-check">
-            <input type="checkbox" id="redlight" name="REDLIGHT" class="form-check-input">
-            <label for="redlight" class="form-check-label">REDLIGHT</label>
-        </div>
-        <div class="mb-3 form-check">
-            <input type="checkbox" id="alcohol" name="ALCOHOL" class="form-check-input">
-            <label for="alcohol" class="form-check-label">ALCOHOL</label>
-        </div>
-        <div class="mb-3 form-check">
-            <input type="checkbox" id="disability" name="DISABILITY" class="form-check-input">
-            <label for="disability" class="form-check-label">DISABILITY</label>
-        </div>
-        <div id="map" style="width: 600px; height: 400px; margin-bottom: 1.5em"></div>
-
-        <div class="mb-3">
-            <label for="latitude" class="form-label">LATITUDE:</label>
-            <input type="text" id="latitude" name="LATITUDE" class="form-control" readonly>
-        </div>
-        <div class="mb-3">
-            <label for="longitude" class="form-label">LONGITUDE:</label>
-            <input type="text" id="longitude" name="LONGITUDE" class="form-control" readonly>
-        </div>
+        <div class="row">
+            <div class="col">
+              <div class="mb-3 form-check">
+                <input type="checkbox" id="pedestrian" name="PEDESTRIAN" class="form-check-input">
+                <label for="pedestrian" class="form-check-label">PEDESTRIAN</label>
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" id="cyclist" name="CYCLIST" class="form-check-input">
+                <label for="cyclist" class="form-check-label">CYCLIST</label>
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" id="automobile" name="AUTOMOBILE" class="form-check-input">
+                <label for="automobile" class="form-check-label">AUTOMOBILE</label>
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" id="motorcycle" name="MOTORCYCLE" class="form-check-input">
+                <label for="motorcycle" class="form-check-label">MOTORCYCLE</label>
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" id="truck" name="TRUCK" class="form-check-input">
+                <label for="truck" class="form-check-label">TRUCK</label>
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" id="trsn_city_veh" name="TRSN_CITY_VEH" class="form-check-input">
+                <label for="trsn_city_veh" class="form-check-label">TRSN_CITY_VEH</label>
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" id="emerg_veh" name="EMERG_VEH" class="form-check-input">
+                <label for="emerg_veh" class="form-check-label">EMERG_VEH</label>
+              </div>
+            </div>
+            <div class="col">
+              <div class="mb-3 form-check">
+                <input type="checkbox" id="passenger" name="PASSENGER" class="form-check-input">
+                <label for="passenger" class="form-check-label">PASSENGER</label>
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" id="speeding" name="SPEEDING" class="form-check-input">
+                <label for="speeding" class="form-check-label">SPEEDING</label>
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" id="ag_driv" name="AG_DRIV" class="form-check-input">
+                <label for="ag_driv" class="form-check-label">AG_DRIV</label>
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" id="redlight" name="REDLIGHT" class="form-check-input">
+                <label for="redlight" class="form-check-label">REDLIGHT</label>
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" id="alcohol" name="ALCOHOL" class="form-check-input">
+                <label for="alcohol" class="form-check-label">ALCOHOL</label>
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" id="disability" name="DISABILITY" class="form-check-input">
+                <label for="disability" class="form-check-label">DISABILITY</label>
+              </div>
+            </div>
+          </div>
+                  <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="latitude" class="form-label">LATITUDE:</label>
+                <input type="text" id="latitude" name="LATITUDE" class="form-control" readonly>
+              </div>
+              <div class="mb-3">
+                <label for="longitude" class="form-label">LONGITUDE:</label>
+                <input type="text" id="longitude" name="LONGITUDE" class="form-control" readonly>
+              </div>
         <button type="submit" class="btn btn-primary mt-3 mb-3 ">Predict</button>
+
+            </div>
+            <div class="col-md-6">
+              <div id="map" style="width: 100%; height: 400px; margin-bottom: 1.5em"></div>
+            </div>
+
+          </div>
+          
     </form>
     <div id="result"></div>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="../static/script.js"></script>
-</div>  
+</div>
+<footer>Group 5 - Aazain Ullah Khan, Younghun Mun, Tuong Nguyen Pham, Reet Kaur, Dongheun Yang</footer>
 </body>
 </html>

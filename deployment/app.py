@@ -13,6 +13,9 @@ print('Loaded SVM model from svm_model.pkl')
 nn_model = joblib.load('nn_model.pkl')
 print('Loaded neural networks model from nn_model.pkl')
 
+dt_model = joblib.load('dt_model.pkl')
+print('Loaded decision tree model from dt_model.pkl')
+
 pipeline = joblib.load('pipeline.pkl')
 print('Loaded pipeline from pipeline.pkl')
 
@@ -41,6 +44,10 @@ def predict():
             prediction = nn_model.predict(data)[0]
             probabilities = nn_model.predict_proba(data)[0]
             print(f'Used neural networks model from nn_model.pkl for prediction')
+        elif model_name == 'decision_trees':
+            prediction = dt_model.predict(data)[0]
+            probabilities = dt_model.predict_proba(data)[0]
+            print(f'Used decision tree model from dt_model.pkl for prediction')
         else:
             return jsonify({'error': 'Invalid model selected'}), 400
 
